@@ -1,7 +1,7 @@
 // Topmenuen, som vises på alle sider: logo, navigationslinks, temavalg og
 // login/logout-knap.
 import { useEffect, useState } from "react";
-import { Link, NavLink, useNavigate } from "react-router-dom";
+import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { flexBetween } from "../styles/mixins";
 import { themes, type ThemeName } from "../styles/theme";
@@ -74,13 +74,16 @@ const AuthButton = styled.button`
 export default function Nav({ themeName, onThemeChange }: NavProps) {
   const [userName, setUserName] = useState<string | null>(null);
   const navigate = useNavigate();
+  const location = useLocation();
 
-  // Tjekker ved opstart, om der allerede er en bruger logget ind (fra en
-  // tidligere session gemt i localStorage), og viser i så fald navnet.
+  // Tjekker ved opstart, og hver gang man navigerer til en ny side, om der
+  // er en bruger logget ind (fra localStorage), og viser i så fald navnet.
+  // Nav bliver ikke genmonteret ved navigation, så uden `location` som
+  // dependency ville den aldrig opdage et login, der skete på en anden side.
   useEffect(() => {
     const user = getCurrentUser();
     setUserName(user ? user.name : null);
-  }, []);
+  }, [location]);
 
   // Logger brugeren ud og sender personen tilbage til forsiden.
   function handleLogout() {
